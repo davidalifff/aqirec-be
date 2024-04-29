@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AqiStationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -19,7 +20,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('aqi-stations', 'AqiStationController');
-Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('auth/logout', [AuthController::class, 'logout']);
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::prefix('air')->group(function () {
+    Route::get('/get-all', [AqiStationController::class, 'getAll']); 
+});
+
+Route::get('/anjay-keren', [AqiStationController::class, 'getCobaSatu']);
