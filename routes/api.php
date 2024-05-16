@@ -28,6 +28,7 @@ Route::prefix('auth')->group(function () {
 
 Route::prefix('air')->group(function () {
     Route::get('/get-all', [AqiStationController::class, 'getAll']); 
+    Route::get('/update', [AqiStationController::class, 'update']);
 });
 
 Route::get('/anjay-keren', [AqiStationController::class, 'getCobaSatu']);
