@@ -3,7 +3,10 @@
 use App\Http\Controllers\AqiStationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StationController;
+use App\Models\AqiStation;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +23,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/route-cache', function () {
+    $exitCode = Artisan::call('route:cache');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('view:clear');
+    echo "optimized";
+    return print_r($exitCode);
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -28,7 +41,12 @@ Route::prefix('auth')->group(function () {
 
 Route::prefix('air')->group(function () {
     Route::get('/get-all', [AqiStationController::class, 'getAll']); 
+    Route::get('/aqi/{id}', [AqiStationController::class, 'getById']);
     Route::get('/update', [AqiStationController::class, 'update']);
+});
+
+Route::prefix('station')->group(function () {
+    Route::get('/get-all', [StationController::class, 'index']);
 });
 
 Route::get('/anjay-keren', [AqiStationController::class, 'getCobaSatu']);

@@ -34,6 +34,13 @@ class AqiStationController extends Controller
         return response()->json(['message' => 'succes', 'data' => new AqiStationResource($aqi_stations)], 200);
     }
 
+    public function getById(Request $request, $id) {
+        $aqi = Aqi::where('id_aqi_stations', '=', $id)
+            ->get();
+
+        return response()->json(['message' => 'success', 'data' => $aqi], 200);
+    }
+
     public function update() {
         $aqi_stations = AqiStation::get();
 
