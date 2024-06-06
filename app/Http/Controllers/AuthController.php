@@ -29,19 +29,20 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-    $credentials = $request->only('email', 'password');
+        $credentials = $request->only('email', 'password');
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
-        $token = $user->createToken('authToken')->plainTextToken;
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken('authToken')->plainTextToken;
 
-        return response()->json(['token' => $token], 200);
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['token' => $token], 200);
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
     }
-    }
 
-    public function logout(){
+    public function logout(Request $request)
+    {
         auth()->logout();
         return response()->json('', 200);
     }

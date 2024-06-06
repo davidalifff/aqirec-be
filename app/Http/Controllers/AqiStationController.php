@@ -24,8 +24,6 @@ class AqiStationController extends Controller
             ];
         }
 
-        // dd($arrIndex[82]);
-
         foreach ($aqi_stations as $key => $value) {
             $aqi_stations[$key]->index_1 = $arrIndex[$value->id]['index_1'];
             $aqi_stations[$key]->index_2 = $arrIndex[$value->id]['index_2'];
@@ -39,6 +37,39 @@ class AqiStationController extends Controller
             ->get();
 
         return response()->json(['message' => 'success', 'data' => $aqi], 200);
+    }
+
+    public function getMostPolluted(Request $request) {
+        $aqi_stations = AqiStation::get()->toArray();
+        $aqi = Aqi::where('index_1', '!=', '-')
+            ->orderBy('created_at', 'DESC')
+            ->groupBy('id_aqi_stations')
+            ->get();
+
+        $arrIndex = [];
+        foreach ($aqi as $key => $value) {
+            $arrIndex[$value->id] = [
+                'index_1' => $value->index_1,
+                'index_2' => $value->index_2
+            ];
+        }
+
+        foreach ($aqi_stations as $key => $value) {
+            if (isset($arrIndex[$value['id']])) {
+                $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
+                $aqi_stations[$key]['index_2'] = $arrIndex[$value['id']]['index_2'];
+            } else {
+                unset($aqi_stations[$key]);
+            }
+        }
+
+        usort($aqi_stations, function($a, $b) {
+            return $a['index_1'] < $b['index_1'];
+        });
+
+        $aqi_stations = array_slice($aqi_stations, 0, 10);
+
+        return response()->json(['message' => 'succes', 'data' => new AqiStationResource($aqi_stations)], 200);
     }
 
     public function update() {
