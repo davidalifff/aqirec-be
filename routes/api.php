@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AqiStationController;
+use App\Http\Controllers\AqiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -44,6 +45,8 @@ Route::prefix('air')->group(function () {
     Route::get('/aqi/{id}', [AqiStationController::class, 'getById']);
     Route::get('/get-most-polluted', [AqiStationController::class, 'getMostPolluted']); 
     Route::get('/update', [AqiStationController::class, 'update']);
+    Route::get('/export-avg', [AqiController::class, 'exportAvg']);
+    Route::get('/export-data-aqi/{id}', [AqiController::class, 'exportDataAqi']);
 });
 
 Route::prefix('station')->group(function () {
