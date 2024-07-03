@@ -20,13 +20,28 @@ class AqiStationController extends Controller
         foreach ($aqi as $key => $value) {
             $arrIndex[$value->id] = [
                 'index_1' => $value->index_1,
-                'index_2' => $value->index_2
+                'index_2' => $value->index_2,
+                'index' => 0
             ];
         }
 
         foreach ($aqi_stations as $key => $value) {
-            $aqi_stations[$key]->index_1 = $arrIndex[$value->id]['index_1'];
-            $aqi_stations[$key]->index_2 = $arrIndex[$value->id]['index_2'];
+            if (isset($arrIndex[$value['id']])) {
+                $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
+                $aqi_stations[$key]['index_2'] = $arrIndex[$value['id']]['index_2'];
+
+                if (!empty($aqi_stations[$key]['index_2'])) {
+                    if ($aqi_stations[$key]['index_1'] != '-') {
+                        $aqi_stations[$key]['index'] = round(($aqi_stations[$key]['index_1'] + $aqi_stations[$key]['index_2']) / 2, 0);
+                    } else {
+                        $aqi_stations[$key]['index'] = $aqi_stations[$key]['index_2'];
+                    }
+                } else {
+                    $aqi_stations[$key]['index'] = $aqi_stations[$key]['index_1'];
+                }
+            } else {
+                unset($aqi_stations[$key]);
+            }
         }
 
         return response()->json(['message' => 'succes', 'data' => new AqiStationResource($aqi_stations)], 200);
@@ -35,6 +50,16 @@ class AqiStationController extends Controller
     public function getById(Request $request, $id) {
         $aqi = Aqi::where('id_aqi_stations', '=', $id)
             ->get();
+
+        if (!empty($aqi[0]['index_2'])) {
+            if ($aqi[0]['index_1'] != '-') {
+                $aqi[0]['index'] = round(($aqi[0]['index_1'] + $aqi[0]['index_2']) / 2, 0);
+            } else {
+                $aqi[0]['index'] = $aqi[0]['index_2'];
+            }
+        } else {
+            $aqi[0]['index'] = $aqi[0]['index_1'];
+        }
 
         return response()->json(['message' => 'success', 'data' => $aqi], 200);
     }
@@ -50,7 +75,8 @@ class AqiStationController extends Controller
         foreach ($aqi as $key => $value) {
             $arrIndex[$value->id] = [
                 'index_1' => $value->index_1,
-                'index_2' => $value->index_2
+                'index_2' => $value->index_2,
+                'index' => 0
             ];
         }
 
@@ -58,13 +84,23 @@ class AqiStationController extends Controller
             if (isset($arrIndex[$value['id']])) {
                 $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
                 $aqi_stations[$key]['index_2'] = $arrIndex[$value['id']]['index_2'];
+
+                if (!empty($aqi_stations[$key]['index_2'])) {
+                    if ($aqi_stations[$key]['index_1'] != '-') {
+                        $aqi_stations[$key]['index'] = round(($aqi_stations[$key]['index_1'] + $aqi_stations[$key]['index_2']) / 2, 0);
+                    } else {
+                        $aqi_stations[$key]['index'] = $aqi_stations[$key]['index_2'];
+                    }
+                } else {
+                    $aqi_stations[$key]['index'] = $aqi_stations[$key]['index_1'];
+                }
             } else {
                 unset($aqi_stations[$key]);
             }
         }
 
         usort($aqi_stations, function($a, $b) {
-            return $a['index_1'] < $b['index_1'];
+            return $a['index'] < $b['index'];
         });
 
         $aqi_stations = array_slice($aqi_stations, 0, 10);
@@ -77,7 +113,10 @@ class AqiStationController extends Controller
 
         $arrUpdate = [];
         foreach ($aqi_stations as $key => $value) {
-            if ($value->id > 40) {
+            $data_1 = $data_2 = [];
+            // if ($value->id <= 30) {
+            // if ($value->id > 30 && $value->id <= 60) {
+            if ($value->id > 60) {
                 // Get Data from API
                 if (isset($value->url_1) && !empty($value->url_1)) {
                     $data_1 = Http::get($value->url_1)->json()['data'];
@@ -99,7 +138,9 @@ class AqiStationController extends Controller
                 }
     
                 if (isset($data_2) && !empty($data_2)) {
-                    $dt_update['index_2'] = $data_2['aqi'];
+                    if (isset($data_2['current'])) {
+                        $dt_update['index_2'] = $data_2['current']['pollution']['aqius'];
+                    }
                 }
     
                 // Insert to table aqi
