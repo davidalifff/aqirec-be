@@ -20,4 +20,24 @@ class Aqi extends Model
         'index_1',
         'index_2'
     ];
+
+    public function getAvg() {
+        $data = $this->query()
+            ->selectRaw('aqi_stations.id AS ID, aqi_stations.nama AS Nama, aqi.index_1 AS "Index 1", aqi.index_2 AS "Index 2", (IFNULL(aqi.index_1, 0)+IFNULL(aqi.index_2, 0))/2 AS "Rata-rata"');
+        $data->join('aqi_stations', 'aqi_stations.id', '=', 'aqi.id_aqi_stations');
+        $data->orderBy('aqi_stations.id');
+
+        return $data->get()->toArray();
+    }
+
+    public function getDataAqi(int $aqi_stations_id) {
+        /*SELECT aqi.created_at date, index_1 pm25, index_2 pm10, "" t, "" w FROM `aqi` JOIN aqi_stations ON aqi_stations.id = aqi.id_aqi_stations WHERE aqi_stations.id = 9 ORDER BY aqi.created_at*/
+        $data = $this->query()
+            ->selectRaw('aqi.created_at date, index_1 pm25, index_2 pm10, "" t, "" w');
+        $data->join('aqi_stations', 'aqi_stations.id', '=', 'aqi.id_aqi_stations');
+        $data->where('aqi_stations.id', $aqi_stations_id);
+        $data->orderBy('aqi.created_at');
+
+        return $data->get()->toArray();
+    }
 }
