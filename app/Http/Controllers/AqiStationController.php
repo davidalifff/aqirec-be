@@ -7,6 +7,7 @@ use App\Models\Aqi;
 use App\Models\AqiStation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class AqiStationController extends Controller
 {
@@ -170,5 +171,78 @@ class AqiStationController extends Controller
         }
 
         return response()->json(['message' => 'success', 'data' => $arrUpdate]);
+    }
+
+    public function cronAqi()
+    {
+        $last_id = DB::table('cron')->select('last_station_id')->first();
+        $aqi_stations = AqiStation::where('id', '>', $last_id->last_station_id)->limit(10)->get();
+        foreach ($aqi_stations as $station) {
+            if ($station->url_1) {
+                $url1 = Http::get($station->url_1)->json();
+
+                if ($url1['status'] == 'ok') {
+                    $iaqi = $url1['data']['iaqi'];
+                    $pm10 = isset($iaqi['pm10']) ? $iaqi['pm10']['v'] : null;
+                    $pm25 = isset($iaqi['pm25']) ? $iaqi['pm25']['v'] : null;
+                    $t = isset($iaqi['t']) ? $iaqi['t']['v'] : null;
+                    $w = isset($iaqi['w']) ? $iaqi['w']['v'] : null;
+                    $ts = $url1['data']['time']['s'];
+
+                    $exist = Aqi::where('id_aqi_stations', '=', $station->id)
+                        ->where('ts', '=', $ts)
+                        ->first();
+                    if (!$exist) {
+                        Aqi::insert([
+                            'id_aqi_stations'   => $station->id,
+                            'index_1'           => $pm10,
+                            'index_2'           => $pm25,
+                            't'                 => $t,
+                            'w'                 => $w,
+                            'ts'                => $ts,
+                            'created_at'        => $ts,
+                            'updated_at'        => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+
+            if ($station->url_2) {
+                $url2 = Http::get($station->url_2)->json();
+
+                if ($url2['status'] == 'success') {
+                    if (isset($url2['data']['current']['pollution']['aqicn'])) {
+                        $aqicn = $url2['data']['current']['pollution']['aqicn'];
+                        $ts = $url2['data']['current']['pollution']['ts'];
+
+                        $exist = Aqi::where('id_aqi_stations', '=', $station->id)
+                            ->where('ts', '=', $ts)
+                            ->first();
+                        if (!$exist) {
+                            Aqi::insert([
+                                'id_aqi_stations'   => $station->id,
+                                'aqicn'             => $aqicn,
+                                'ts'                => $ts,
+                                'created_at'        => $ts,
+                                'updated_at'        => date('Y-m-d H:i:s'),
+                            ]);
+                        } else {
+                            $exist->update([
+                                'aqicn' => $aqicn
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            DB::table('cron')->where('id', 1)->update([
+                'last_station_id' => $station->id
+            ]);
+        }
+        if (count($aqi_stations) == 0) {
+            DB::table('cron')->where('id', 1)->update([
+                'last_station_id' => 0
+            ]);
+        }
     }
 }

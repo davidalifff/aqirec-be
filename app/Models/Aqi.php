@@ -18,7 +18,11 @@ class Aqi extends Model
     protected $fillable = [
         'id_aqi_stations',
         'index_1',
-        'index_2'
+        'index_2',
+        't',
+        'w',
+        'ts',
+        'created_at',
     ];
 
     public function getAvg() {
@@ -31,9 +35,8 @@ class Aqi extends Model
     }
 
     public function getDataAqi(int $aqi_stations_id) {
-        /*SELECT aqi.created_at date, index_1 pm25, index_2 pm10, "" t, "" w FROM `aqi` JOIN aqi_stations ON aqi_stations.id = aqi.id_aqi_stations WHERE aqi_stations.id = 9 ORDER BY aqi.created_at*/
         $data = $this->query()
-            ->selectRaw('aqi.created_at date, index_1 pm25, index_2 pm10, "" t, "" w');
+            ->selectRaw('aqi.created_at date, index_1 pm25, index_2 pm10, t, w');
         $data->join('aqi_stations', 'aqi_stations.id', '=', 'aqi.id_aqi_stations');
         $data->where('aqi_stations.id', $aqi_stations_id);
         $data->orderBy('aqi.created_at');
