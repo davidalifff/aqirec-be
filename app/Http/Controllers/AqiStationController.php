@@ -8,6 +8,7 @@ use App\Models\AqiStation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AqiStationController extends Controller
 {
@@ -175,8 +176,9 @@ class AqiStationController extends Controller
 
     public function cronAqi()
     {
+        set_time_limit(0);
         $last_id = DB::table('cron')->select('last_station_id')->first();
-        $aqi_stations = AqiStation::where('id', '>', $last_id->last_station_id)->limit(10)->get();
+        $aqi_stations = AqiStation::where('id', '>', $last_id->last_station_id)->get();
         foreach ($aqi_stations as $station) {
             if ($station->url_1) {
                 $url1 = Http::get($station->url_1)->json();
@@ -214,6 +216,7 @@ class AqiStationController extends Controller
                     if (isset($url2['data']['current']['pollution']['aqicn'])) {
                         $aqicn = $url2['data']['current']['pollution']['aqicn'];
                         $ts = $url2['data']['current']['pollution']['ts'];
+                        $ts = Carbon::parse($ts)->timezone('Asia/Jakarta')->toDateTimeString();
 
                         $exist = Aqi::where('id_aqi_stations', '=', $station->id)
                             ->where('ts', '=', $ts)
