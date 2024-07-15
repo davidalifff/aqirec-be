@@ -47,6 +47,7 @@ Route::prefix('air')->group(function () {
     Route::get('/update', [AqiStationController::class, 'update']);
     Route::get('/export-avg', [AqiController::class, 'exportAvg']);
     Route::get('/export-data-aqi/{id}', [AqiController::class, 'exportDataAqi']);
+    Route::get('/overall', [AqiController::class, 'getOverall']); //home
 });
 
 Route::prefix('station')->group(function () {
