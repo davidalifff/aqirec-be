@@ -21,16 +21,16 @@ class AqiStationController extends Controller
         $arrIndex = [];
         foreach ($aqi as $key => $value) {
             $arrIndex[$value->id] = [
-                'index_1' => $value->index_1,
-                'index_2' => $value->index_2,
+                'index_1' => is_null($value->index_1) || $value->index_1 == '-' ? 0 : $value->index_1,
+                'index_2' => is_null($value->index_2) || $value->index_2 == '-'? 0 : $value->index_2,
                 'index' => 0
             ];
         }
 
         foreach ($aqi_stations as $key => $value) {
             if (isset($arrIndex[$value['id']])) {
-                $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
-                $aqi_stations[$key]['index_2'] = $arrIndex[$value['id']]['index_2'];
+                $aqi_stations[$key]['index_1'] = is_null($arrIndex[$value['id']]['index_1']) ? 0 || $arrIndex[$value['id']]['index_1'] == '-' : $arrIndex[$value['id']]['index_1'];
+                $aqi_stations[$key]['index_2'] = is_null($arrIndex[$value['id']]['index_2']) ? 0 || $arrIndex[$value['id']]['index_2'] == '-' : $arrIndex[$value['id']]['index_2'];
 
                 if (!empty($aqi_stations[$key]['index_2'])) {
                     if ($aqi_stations[$key]['index_1'] != '-') {
@@ -76,16 +76,16 @@ class AqiStationController extends Controller
         $arrIndex = [];
         foreach ($aqi as $key => $value) {
             $arrIndex[$value->id] = [
-                'index_1' => $value->index_1,
-                'index_2' => $value->index_2,
+                'index_1' => is_null($value->index_1) || $value->index_1 == '-' ? 0 : $value->index_1,
+                'index_2' => is_null($value->index_2) || $value->index_2 == '-'? 0 : $value->index_2,
                 'index' => 0
             ];
         }
 
         foreach ($aqi_stations as $key => $value) {
             if (isset($arrIndex[$value['id']])) {
-                $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
-                $aqi_stations[$key]['index_2'] = $arrIndex[$value['id']]['index_2'];
+                $aqi_stations[$key]['index_1'] = is_null($arrIndex[$value['id']]['index_1']) ? 0 || $arrIndex[$value['id']]['index_1'] == '-' : $arrIndex[$value['id']]['index_1'];
+                $aqi_stations[$key]['index_2'] = is_null($arrIndex[$value['id']]['index_2']) ? 0 || $arrIndex[$value['id']]['index_2'] == '-' : $arrIndex[$value['id']]['index_2'];
 
                 if (!empty($aqi_stations[$key]['index_2'])) {
                     if ($aqi_stations[$key]['index_1'] != '-') {
