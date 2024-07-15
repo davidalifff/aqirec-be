@@ -68,16 +68,20 @@ class AqiController extends Controller
 		return response()->stream($callback, 200, $headers);
 	}
 
-	private function _getData()
+	private function _getData($id = null)
 	{
 
         $aqi_stations = AqiStation::get()->toArray();
+        $additionalWhere = '';
+        if ($id) {
+        	$additionalWhere = 'AND id_aqi_stations = '.$id;
+        }
         $aqi = DB::select(
         	'SELECT *, IFNULL(`index_1`, 0) AS index_1, IFNULL(`index_2`, 0) AS index_2
 			FROM aqi WHERE (`id_aqi_stations`, `id`) IN 
 			( SELECT id_aqi_stations, MAX(id)
 			  FROM aqi
-			  WHERE (`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)
+			  WHERE ((`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)) '.$additionalWhere.'
 			  GROUP BY id_aqi_stations
 			)'
 		);
@@ -88,7 +92,11 @@ class AqiController extends Controller
                 'index_1' => $value->index_1,
                 'index_2' => is_null($value->index_2) || $value->index_2 == '-'? 0 : $value->index_2,
                 'index' => 0,
-                'ts' => $value->ts
+                'ts' => $value->ts,
+                'id_aqi_stations' => $value->id_aqi_stations,
+                't' => $value->t,
+                'w' => $value->w,
+                'aqicn' => $value->aqicn
             ];
         }
 
@@ -112,6 +120,13 @@ class AqiController extends Controller
             		$aqi_stations[$key]['group'] = 'unhealthy';
             	}
                 $aqi_stations[$key]['ts'] = $arrIndex[$value['id']]['ts'];
+                if ($id) {
+                	$aqi_stations[$key]['id_aqi_stations'] = $arrIndex[$value['id']]['id_aqi_stations'];
+                	$aqi_stations[$key]['t'] = $arrIndex[$value['id']]['t'];
+                	$aqi_stations[$key]['w'] = $arrIndex[$value['id']]['w'];
+                	$aqi_stations[$key]['aqicn'] = $arrIndex[$value['id']]['aqicn'];
+                	$aqi_stations[$key]['index'] = $aqi_stations[$key]['aqi'];
+                }
             } else {
                 unset($aqi_stations[$key]);
             }
@@ -146,7 +161,7 @@ class AqiController extends Controller
 			}
 		}
 
-        return response()->json(['message' => 'succes', 'data' => $return], 200);
+        return response()->json(['message' => 'success', 'data' => $return], 200);
 	}
 
 	public function getOverallGroup($group)
@@ -161,6 +176,12 @@ class AqiController extends Controller
 			}
 		}
 
-        return response()->json(['message' => 'succes', 'data' => $return], 200);
+        return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getById($id)
+	{
+		$return = $this->_getData($id);
+		return response()->json(['message' => 'success', 'data' => $return], 200);
 	}
 }

@@ -49,23 +49,6 @@ class AqiStationController extends Controller
         return response()->json(['message' => 'succes', 'data' => new AqiStationResource($aqi_stations)], 200);
     }
 
-    public function getById(Request $request, $id) {
-        $aqi = Aqi::where('id_aqi_stations', '=', $id)
-            ->get();
-
-        if (!empty($aqi[0]['index_2'])) {
-            if ($aqi[0]['index_1'] != '-') {
-                $aqi[0]['index'] = round(($aqi[0]['index_1'] + $aqi[0]['index_2']) / 2, 0);
-            } else {
-                $aqi[0]['index'] = $aqi[0]['index_2'];
-            }
-        } else {
-            $aqi[0]['index'] = $aqi[0]['index_1'];
-        }
-
-        return response()->json(['message' => 'success', 'data' => $aqi], 200);
-    }
-
     public function getMostPolluted(Request $request) {
         $aqi_stations = AqiStation::get()->toArray();
         $aqi = Aqi::where('index_1', '!=', '-')
