@@ -148,4 +148,19 @@ class AqiController extends Controller
 
         return response()->json(['message' => 'succes', 'data' => $return], 200);
 	}
+
+	public function getOverallGroup($group)
+	{
+		$data = $this->_getData();
+
+		$return = [];
+
+		foreach ($data as $key => $value) {
+			if ($value['group'] == $group) {
+				$return[] = $value;
+			}
+		}
+
+        return response()->json(['message' => 'succes', 'data' => $return], 200);
+	}
 }
