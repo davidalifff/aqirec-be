@@ -32,4 +32,8 @@ class AqiStation extends Model
 
         return $data->get();
     }
+
+    public function getById(int $id) {
+        return $this->find($id);
+    }
 }

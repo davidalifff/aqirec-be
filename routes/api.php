@@ -41,9 +41,10 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('air')->group(function () {
-    Route::get('/get-all', [AqiStationController::class, 'getAll']); 
+    Route::get('/get-all', [AqiStationController::class, 'getAll']);
     Route::get('/aqi/{id}', [AqiController::class, 'getById']);
-    Route::get('/get-most-polluted', [AqiStationController::class, 'getMostPolluted']); 
+    Route::get('/get-most-polluted', [AqiStationController::class, 'getMostPolluted']);
+
     Route::get('/update', [AqiStationController::class, 'update']);
     Route::get('/export-avg', [AqiController::class, 'exportAvg']);
     Route::get('/export-data-aqi/{id}', [AqiController::class, 'exportDataAqi']);
@@ -53,6 +54,7 @@ Route::prefix('air')->group(function () {
 
 Route::prefix('station')->group(function () {
     Route::get('/get-all', [StationController::class, 'index']);
+    Route::get('/get/{id}', [StationController::class, 'show']);
 });
 
 Route::get('/anjay-keren', [AqiStationController::class, 'getCobaSatu']);

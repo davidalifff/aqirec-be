@@ -21,4 +21,11 @@ class StationController extends Controller
 
         return response()->json(['message' => 'success', 'data' => new StationResource($station)], 200);
     }
+
+    public function show($id) {
+
+       $station = $this->stationModel->getById($id);
+
+       return response()->json(['message' => 'success', 'data' => new StationResource($station)], 200);
+    }
 }
