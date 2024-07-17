@@ -68,7 +68,7 @@ class AqiController extends Controller
 		return response()->stream($callback, 200, $headers);
 	}
 
-	private function _getData($id = null)
+	private function _getData(int $id = null)
 	{
 
         $aqi_stations = AqiStation::get()->toArray();
@@ -99,7 +99,10 @@ class AqiController extends Controller
                 'aqicn' => $value->aqicn
             ];
         }
-
+ 		
+ 		/*
+ 		Perhitungan aqi
+ 		*/
         foreach ($aqi_stations as $key => $value) {
             if (isset($arrIndex[$value['id']])) {
                 $aqi_stations[$key]['index_1'] = $arrIndex[$value['id']]['index_1'];
