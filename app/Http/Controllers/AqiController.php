@@ -187,4 +187,173 @@ class AqiController extends Controller
 		$return = $this->_getData($id);
 		return response()->json(['message' => 'success', 'data' => $return], 200);
 	}
+
+	public function getDetailDaily(int $id_aqi_stations, $date)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE ((`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)) AND id_aqi_stations = ?
+			AND date(ts) = ?
+		', [$id_aqi_stations, $date]);
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'aqi' => [],
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			if ($value->index_1 > 0) {
+				$aqi = round(0.516 * $value->index_1 + 151, 0);
+				$return['pm25'][] = [
+					'ts' => $value->ts,
+					'pm25' => $value->index_1
+				];
+			} else {
+				$aqi = round(0.9259 * $value->index_2, 0);
+			}
+			if ($aqi < 51) {
+				$return['healty']++;
+			} elseif ($aqi > 50 && $aqi < 151) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+			$return['aqi'][] = [
+				'ts' => $value->ts,
+				'aqi' => $aqi
+			];
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailWeekly(int $id_aqi_stations)
+	{
+		#SELECT date(ts) ts, SUM(index_1)/COUNT(index_1) index_1, SUM(index_2)/COUNT(index_2) index_2
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE ((`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)) AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 7 DAY;
+		', [$id_aqi_stations]);
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'aqi' => [],
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			if ($value->index_1 > 0) {
+				$aqi = round(0.516 * $value->index_1 + 151, 0);
+				$return['pm25'][] = [
+					'ts' => $value->ts,
+					'pm25' => $value->index_1
+				];
+			} else {
+				$aqi = round(0.9259 * $value->index_2, 0);
+			}
+			if ($aqi < 51) {
+				$return['healty']++;
+			} elseif ($aqi > 50 && $aqi < 151) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+			$return['aqi'][] = [
+				'ts' => $value->ts,
+				'aqi' => $aqi
+			];
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailMonthly(int $id_aqi_stations)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE ((`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)) AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 1 MONTH;
+		', [$id_aqi_stations]);
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'aqi' => [],
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			if ($value->index_1 > 0) {
+				$aqi = round(0.516 * $value->index_1 + 151, 0);
+				$return['pm25'][] = [
+					'ts' => $value->ts,
+					'pm25' => $value->index_1
+				];
+			} else {
+				$aqi = round(0.9259 * $value->index_2, 0);
+			}
+			if ($aqi < 51) {
+				$return['healty']++;
+			} elseif ($aqi > 50 && $aqi < 151) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+			$return['aqi'][] = [
+				'ts' => $value->ts,
+				'aqi' => $aqi
+			];
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailYearly(int $id_aqi_stations)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE ((`index_1` IS NOT NULL) OR (`index_2` IS NOT NULL)) AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 1 YEAR;
+		', [$id_aqi_stations]);
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'aqi' => [],
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			if ($value->index_1 > 0) {
+				$aqi = round(0.516 * $value->index_1 + 151, 0);
+				$return['pm25'][] = [
+					'ts' => $value->ts,
+					'pm25' => $value->index_1
+				];
+			} else {
+				$aqi = round(0.9259 * $value->index_2, 0);
+			}
+			if ($aqi < 51) {
+				$return['healty']++;
+			} elseif ($aqi > 50 && $aqi < 151) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+			$return['aqi'][] = [
+				'ts' => $value->ts,
+				'aqi' => $aqi
+			];
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
 }

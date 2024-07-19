@@ -50,6 +50,11 @@ Route::prefix('air')->group(function () {
     Route::get('/export-data-aqi/{id}', [AqiController::class, 'exportDataAqi']);
     Route::get('/overall', [AqiController::class, 'getOverall']); //home
     Route::get('/overall/{group}', [AqiController::class, 'getOverallGroup']); //home
+
+    Route::get('/detail/daily/{id}/{date}', [AqiController::class, 'getDetailDaily']);
+    Route::get('/detail/weekly/{id}', [AqiController::class, 'getDetailWeekly']);
+    Route::get('/detail/monthly/{id}', [AqiController::class, 'getDetailMonthly']);
+    Route::get('/detail/yearly/{id}', [AqiController::class, 'getDetailYearly']);
 });
 
 Route::prefix('station')->group(function () {
