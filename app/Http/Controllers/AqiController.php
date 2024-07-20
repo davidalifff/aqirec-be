@@ -356,4 +356,151 @@ class AqiController extends Controller
 		}
 		return response()->json(['message' => 'success', 'data' => $return], 200);
 	}
+
+	public function getDetailPm25Daily(int $id_aqi_stations, $date)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE `index_1` IS NOT NULL AND id_aqi_stations = ?
+			AND date(ts) = ?
+		', [$id_aqi_stations, $date]);
+
+		if (count($aqi) == 0) {
+			return response()->json(['message' => 'success', 'data' => null], 200);
+		}
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			$return['pm25'][] = [
+				'ts' => $value->ts,
+				'pm25' => $value->index_1
+			];
+			if ($value->index_1 < 35.5) {
+				$return['healty']++;
+			} elseif ($value->index_1 > 35.4 && $value->index_1 < 55.5) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+		}
+		/*PM2.5 (μg/m3): 0-35.4 = Healthy
+		PM2.5 (μg/m3): 35.5-55.4 = Moderate
+		PM2.5 (μg/m3): 55.5-125.4 = Unhealthy*/
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailPm25Weekly(int $id_aqi_stations)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE `index_1` IS NOT NULL AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 7 DAY;
+		', [$id_aqi_stations]);
+
+		if (count($aqi) == 0) {
+			return response()->json(['message' => 'success', 'data' => null], 200);
+		}
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			$return['pm25'][] = [
+				'ts' => $value->ts,
+				'pm25' => $value->index_1
+			];
+			if ($value->index_1 < 35.5) {
+				$return['healty']++;
+			} elseif ($value->index_1 > 35.4 && $value->index_1 < 55.5) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailPm25Monthly(int $id_aqi_stations)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE `index_1` IS NOT NULL AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 1 MONTH;
+		', [$id_aqi_stations]);
+
+		if (count($aqi) == 0) {
+			return response()->json(['message' => 'success', 'data' => null], 200);
+		}
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			$return['pm25'][] = [
+				'ts' => $value->ts,
+				'pm25' => $value->index_1
+			];
+			if ($value->index_1 < 35.5) {
+				$return['healty']++;
+			} elseif ($value->index_1 > 35.4 && $value->index_1 < 55.5) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
+
+	public function getDetailPm25Yearly(int $id_aqi_stations)
+	{
+		$aqi = DB::select('
+			SELECT *
+			FROM aqi
+			WHERE `index_1` IS NOT NULL AND id_aqi_stations = ?
+			AND ts >= DATE(NOW()) - INTERVAL 1 YEAR;
+		', [$id_aqi_stations]);
+
+		if (count($aqi) == 0) {
+			return response()->json(['message' => 'success', 'data' => null], 200);
+		}
+
+		$return = [
+			'healty' => 0,
+			'moderate' => 0,
+			'unhealty' => 0,
+			'pm25' => [],
+		];
+
+		foreach ($aqi as $value) {
+			$return['pm25'][] = [
+				'ts' => $value->ts,
+				'pm25' => $value->index_1
+			];
+			if ($value->index_1 < 35.5) {
+				$return['healty']++;
+			} elseif ($value->index_1 > 35.4 && $value->index_1 < 55.5) {
+				$return['moderate']++;
+			} else {
+				$return['unhealty']++;
+			}
+		}
+		return response()->json(['message' => 'success', 'data' => $return], 200);
+	}
 }

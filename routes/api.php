@@ -55,6 +55,11 @@ Route::prefix('air')->group(function () {
     Route::get('/detail/weekly/{id}', [AqiController::class, 'getDetailWeekly']);
     Route::get('/detail/monthly/{id}', [AqiController::class, 'getDetailMonthly']);
     Route::get('/detail/yearly/{id}', [AqiController::class, 'getDetailYearly']);
+
+    Route::get('/detailpm25/daily/{id}/{date}', [AqiController::class, 'getDetailPm25Daily']);
+    Route::get('/detailpm25/weekly/{id}', [AqiController::class, 'getDetailPm25Weekly']);
+    Route::get('/detailpm25/monthly/{id}', [AqiController::class, 'getDetailPm25Monthly']);
+    Route::get('/detailpm25/yearly/{id}', [AqiController::class, 'getDetailPm25Yearly']);
 });
 
 Route::prefix('station')->group(function () {
